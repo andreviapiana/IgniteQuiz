@@ -10,6 +10,8 @@ import { styles } from './styles';
 import { historyGetAll, historyRemove } from '../../storage/quizHistoryStorage';
 import { Loading } from '../../components/Loading';
 
+import Animated, { Layout, SlideInRight, SlideOutRight } from 'react-native-reanimated';
+
 export function History() {
   const [isLoading, setIsLoading] = useState(true);
   const [history, setHistory] = useState<HistoryProps[]>([]);
@@ -65,12 +67,18 @@ export function History() {
       >
         {
           history.map((item) => (
-            <TouchableOpacity
+            <Animated.View
               key={item.id}
-              onPress={() => handleRemove(item.id)}
+              entering={SlideInRight}
+              exiting={SlideOutRight}
+              layout={Layout.springify()}
             >
-              <HistoryCard data={item} />
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => remove(item.id)}
+              >
+                <HistoryCard data={item} />
+              </TouchableOpacity>
+            </Animated.View>
           ))
         }
       </ScrollView>
