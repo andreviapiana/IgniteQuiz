@@ -1,4 +1,5 @@
 import { TouchableOpacity, TouchableOpacityProps, Text, View } from 'react-native';
+import Animated, { FadeInUp, FadeOut } from 'react-native-reanimated';
 
 import { styles } from './styles';
 import { THEME } from '../../styles/theme';
@@ -6,16 +7,22 @@ import { THEME } from '../../styles/theme';
 import { LevelBars } from '../LevelBars';
 import { QUIZZES } from '../../data/quizzes';
 
+
+const TouchableOpacityAnimated = Animated.createAnimatedComponent(TouchableOpacity);
+
 type Props = TouchableOpacityProps & {
   data: typeof QUIZZES[0];
+  index: number
 }
 
-export function QuizCard({ data, ...rest }: Props) {
+export function QuizCard({ data, index, ...rest }: Props) {
   const Icon = data.svg;
 
   return (
-    <TouchableOpacity
+    <TouchableOpacityAnimated
       style={styles.container}
+      entering={FadeInUp.delay(index * 100)}
+      exiting={FadeOut}
       {...rest}
     >
       <View style={styles.header}>
@@ -29,6 +36,6 @@ export function QuizCard({ data, ...rest }: Props) {
       <Text style={styles.title}>
         {data.title}
       </Text>
-    </TouchableOpacity>
+    </TouchableOpacityAnimated>
   );
 }
