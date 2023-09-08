@@ -1,5 +1,7 @@
-import { Text, Pressable, PressableProps } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { Pressable, PressableProps } from 'react-native';
+import { useEffect } from 'react';
+
+import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { THEME } from '../../styles/theme';
 import { styles } from './styles';
@@ -18,12 +20,28 @@ type Props = PressableProps & {
 
 export function Level({ title, type = 'EASY', isChecked = false, ...rest }: Props) {
   const scale = useSharedValue(1);
+  const checked = useSharedValue(1);
   
   const COLOR = TYPE_COLORS[type];
 
   const animatedContainerStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ scale: scale.value }]
+      transform: [{ scale: scale.value }],
+      backgroundColor: interpolateColor(
+        checked.value,
+        [0, 1],
+        ['transparent', COLOR]
+      )
+    }
+  });
+
+  const animatedTextStyle = useAnimatedStyle(() => {
+    return {
+      color: interpolateColor(
+        checked.value,
+        [0, 1],
+        [COLOR, THEME.COLORS.GREY_100]
+      )
     }
   })
 
@@ -35,22 +53,26 @@ export function Level({ title, type = 'EASY', isChecked = false, ...rest }: Prop
     scale.value = withTiming(1);
   }
 
+  useEffect(() => {
+    checked.value = withTiming(isChecked ? 1 : 0);
+  },[isChecked])
+
   return (
     <Pressable onPressIn={onPressIn} onPressOut={onPressOut} {...rest}>
       <Animated.View style={
         [
           styles.container,
           animatedContainerStyle,
-          { borderColor: COLOR, backgroundColor: isChecked ? COLOR : 'transparent' }
+          { borderColor: COLOR },
         ]
       }>
-        <Text style={
+        <Animated.Text style={
           [
             styles.title,
-            { color: isChecked ? THEME.COLORS.GREY_100 : COLOR }
+            animatedTextStyle
           ]}>
           {title}
-        </Text>
+        </Animated.Text>
       </Animated.View>
     </Pressable>
   );
