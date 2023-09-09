@@ -14,7 +14,7 @@ import { QuizHeader } from '../../components/QuizHeader';
 import { ConfirmButton } from '../../components/ConfirmButton';
 import { OutlineButton } from '../../components/OutlineButton';
 
-import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 
 interface Params {
   id: string;
@@ -30,6 +30,7 @@ export function Quiz() {
   const [alternativeSelected, setAlternativeSelected] = useState<null | number>(null);
 
   const shake = useSharedValue(0);
+  const scrollY = useSharedValue(0);
   
   const { navigate } = useNavigation();
 
@@ -113,6 +114,12 @@ export function Quiz() {
     }
   })
 
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y
+    }
+  })
+
   useEffect(() => {
     const quizSelected = QUIZ.filter(item => item.id === id)[0];
     setQuiz(quizSelected);
@@ -131,10 +138,12 @@ export function Quiz() {
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.question}
-      >
+<Animated.ScrollView
+  showsVerticalScrollIndicator={false}
+  contentContainerStyle={styles.question}
+  onScroll={scrollHandler}
+  scrollEventThrottle={16}
+>
         <QuizHeader
           title={quiz.title}
           currentQuestion={currentQuestion + 1}
@@ -154,7 +163,7 @@ export function Quiz() {
           <OutlineButton title="Parar" onPress={handleStop} />
           <ConfirmButton onPress={handleConfirm} />
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
     </View >
   );
 }
