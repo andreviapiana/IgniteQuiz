@@ -6,6 +6,7 @@ import { styles } from "./styles";
 import { Canvas, Easing, LinearGradient, Path, useLoop } from "@shopify/react-native-skia";
 
 import { THEME } from "../../styles/theme";
+import Animated, { BounceIn } from "react-native-reanimated";
 
 export function Stars() {
   const backStarsBlinkAnimated = useLoop({
@@ -128,7 +129,9 @@ export function Stars() {
         />
       </Canvas>
       
-      <TrophySvg /> 
+      <Animated.View entering={BounceIn}>
+        <TrophySvg /> 
+      </Animated.View>
     </View>
   )
 }
