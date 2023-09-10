@@ -2,6 +2,18 @@ import { useEffect, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
 
 import { useNavigation, useRoute } from '@react-navigation/native';
+import Animated, { 
+  useAnimatedStyle, 
+  useSharedValue, 
+  withSequence, 
+  withTiming,
+  interpolate,
+  Extrapolate,
+  Easing,
+  useAnimatedScrollHandler,
+  runOnJS
+} from 'react-native-reanimated';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 import { styles } from './styles';
 import { THEME } from '../../styles/theme';
@@ -16,9 +28,6 @@ import { ConfirmButton } from '../../components/ConfirmButton';
 import { OutlineButton } from '../../components/OutlineButton';
 import { ProgressBar } from '../../components/ProgressBar';
 import { OverlayFeedback } from '../../components/OverlayFeedback';
-
-import Animated, { Easing, Extrapolate, interpolate, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 interface Params {
   id: string;
@@ -41,7 +50,7 @@ export function Quiz() {
   const shake = useSharedValue(0);
   const scrollY = useSharedValue(0);
   const cardPosition = useSharedValue(0);
-  
+
   const { navigate } = useNavigation();
 
   const route = useRoute();
@@ -85,6 +94,7 @@ export function Quiz() {
     if (quiz.questions[currentQuestion].correct === alternativeSelected) {
       setStatusReply(1);
       setPoints(prevState => prevState + 1);
+      handleNextQuestion();
     } else {
       setStatusReply(2);
       shakeAnimation();
@@ -112,7 +122,12 @@ export function Quiz() {
   function shakeAnimation() {
     shake.value = withSequence(
       withTiming(3, { duration: 400, easing: Easing.bounce }), 
-      withTiming(0)
+      withTiming(0, undefined, (finished => {
+        'worklet';
+        if(finished) {
+          runOnJS(handleNextQuestion)()
+        }
+      }))
     )
   }
 
@@ -186,12 +201,6 @@ export function Quiz() {
     setIsLoading(false);
   }, []);
 
-  useEffect(() => {
-    if (quiz.questions) {
-      handleNextQuestion();
-    }
-  }, [points]);
-
   if (isLoading) {
     return <Loading />
   }
@@ -199,7 +208,7 @@ export function Quiz() {
   return (
     <View style={styles.container}>
       <OverlayFeedback status={statusReply} />
-      
+
       <Animated.View
         style={fixedProgressBarStyles}
       >
@@ -219,7 +228,7 @@ export function Quiz() {
             currentQuestion={currentQuestion + 1}
             totalOfQuestions={quiz.questions.length}
           />
-        </Animated.View>
+        </Animated.View>     
 
         <GestureDetector gesture={onPan}>
           <Animated.View style={[shakeStyleAnimated, dragStyles]}>
@@ -228,6 +237,7 @@ export function Quiz() {
               question={quiz.questions[currentQuestion]}
               alternativeSelected={alternativeSelected}
               setAlternativeSelected={setAlternativeSelected}
+              onUnmount={() => setStatusReply(0)}
             />
           </Animated.View>
         </GestureDetector>
