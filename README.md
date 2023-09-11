@@ -27,7 +27,7 @@ ___
 ## 🎨 Layout
 Imagens da aplicação são vistas abaixo:
 
-![Cover](https://github.com/andreviapiana/Marketspace/assets/106932234/a877a399-a38b-4384-bfca-523e63d5f6b7)
+![Capa](https://github.com/andreviapiana/IgniteQuiz/assets/106932234/9303783e-18fe-4128-975b-efce9baebcf4)
 
 ___
 
